@@ -1,13 +1,12 @@
-import { nanoid } from 'nanoid';
 import { useDispatch, useSelector } from 'react-redux';
 import { getContacts } from 'redux/selectors';
-import { addNewContact } from 'redux/actions';
+import { addContact } from 'redux/reducer';
 
 const ContactForm = () => {
   const contacts = useSelector(getContacts);
   const dispatch = useDispatch();
 
-  const addContact = e => {
+  const handleAddContact = e => {
     e.preventDefault();
     let nameOntheList = false;
     const form = e.target;
@@ -16,13 +15,12 @@ const ContactForm = () => {
     const toLowerCase = name.toLowerCase();
 
     const newContact = {
-      id: nanoid(),
       name: name,
       number: number,
     };
 
-    contacts.forEach(({ name }) => {
-      if (name.toLowerCase() === toLowerCase) {
+    contacts.forEach(contact => {
+      if (contact.name.toLowerCase() === toLowerCase) {
         alert(`${name} is already in contacts`);
         nameOntheList = true;
         form.reset();
@@ -31,11 +29,11 @@ const ContactForm = () => {
 
     if (nameOntheList) return;
 
-    dispatch(addNewContact(newContact));
+    dispatch(addContact(newContact));
     form.reset();
   };
   return (
-    <form onSubmit={addContact}>
+    <form onSubmit={handleAddContact}>
       <label htmlFor="name">
         Name
         <input
