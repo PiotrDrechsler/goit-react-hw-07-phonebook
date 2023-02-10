@@ -5,25 +5,23 @@ axios.defaults.baseURL = 'https://63e53f554474903105fc94dd.mockapi.io/api/v1/';
 
 export const fetchContacts = createAsyncThunk('contacts/fetchAll', async () => {
   try {
-    const response = await axios.get('/contacts');
-    return response.data;
-  } catch (e) {
-    throw e;
+    const { data } = await axios.get('/contacts');
+    return data;
+  } catch (error) {
+    console.error(error);
+    return error;
   }
 });
 
 export const addContact = createAsyncThunk(
   'contacts/addContact',
-  async newContact => {
+  async ({ name, phone }) => {
     try {
-      const { name, phone } = newContact;
-      const response = await axios.post('/contacts', {
-        name: name,
-        phone: phone,
-      });
-      return response.data;
-    } catch (e) {
-      console.error(e);
+      const { data } = await axios.post('/contacts', { name, phone });
+      return data;
+    } catch (error) {
+      console.error(error);
+      return error;
     }
   }
 );
@@ -32,11 +30,11 @@ export const deleteContact = createAsyncThunk(
   'contacts/deleteContact',
   async id => {
     try {
-      await axios.delete(`/contacts/${id}`);
-
-      return id;
-    } catch (e) {
-      console.error(e);
+      const response = await axios.delete(`/contacts/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return error;
     }
   }
 );
@@ -48,43 +46,54 @@ const contactsSlice = createSlice({
     isLoading: false,
     error: null,
   },
-  extraReducers: {
-    [fetchContacts.pending]: state => {
-      state.isLoading = true;
+  reducers: {
+    setLoading: (state, action) => {
+      state.isLoading = action.payload;
     },
-    [fetchContacts.fulfilled]: (state, action) => {
-      state.isLoading = false;
+    setError: (state, action) => {
+      state.error = action.payload;
+    },
+    setItems: (state, action) => {
       state.items = action.payload;
-      state.error = null;
     },
-    [fetchContacts.rejected]: (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-    },
-    [addContact.pending]: state => {
+  },
+  extraReducers: builder => {
+    builder.addCase(fetchContacts.pending, state => {
       state.isLoading = true;
-    },
-    [addContact.fulfilled]: (state, action) => {
+    });
+    builder.addCase(fetchContacts.fulfilled, (state, action) => {
       state.isLoading = false;
+      state.error = null;
+      state.items = action.payload;
+    });
+    builder.addCase(fetchContacts.rejected, (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    });
+    builder.addCase(addContact.pending, state => {
+      state.isLoading = true;
+    });
+    builder.addCase(addContact.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.error = null;
       state.items.push(action.payload);
-      state.error = null;
-    },
-    [addContact.rejected]: (state, action) => {
+    });
+    builder.addCase(addContact.rejected, (state, action) => {
       state.isLoading = false;
       state.error = action.payload;
-    },
-    [deleteContact.pending]: state => {
+    });
+    builder.addCase(deleteContact.pending, state => {
+      state.isLoading = true;
+    });
+    builder.addCase(deleteContact.fulfilled, (state, action) => {
       state.isLoading = false;
-    },
-    [deleteContact.fulfilled]: (state, action) => {
-      state.isLoading = false;
+      state.error = null;
       state.items = state.items.filter(item => item.id !== action.payload);
-      state.error = null;
-    },
-    [deleteContact.rejected]: (state, action) => {
+    });
+    builder.addCase(deleteContact.rejected, (state, action) => {
       state.isLoading = false;
       state.error = action.payload;
-    },
+    });
   },
 });
 

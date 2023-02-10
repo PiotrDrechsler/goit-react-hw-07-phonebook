@@ -1,9 +1,9 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { getContacts } from 'redux/selectors';
+import { selectContacts } from 'redux/selectors';
 import { addContact } from 'redux/slicers';
 
 const ContactForm = () => {
-  const contacts = useSelector(getContacts);
+  const contacts = useSelector(selectContacts);
   const dispatch = useDispatch();
 
   const handleAddContact = e => {
@@ -12,7 +12,7 @@ const ContactForm = () => {
     const form = e.target;
     const name = e.target.name.value;
     const phone = e.target.phone.value;
-    const nameOnTheList = contacts.items.some(
+    const nameOnTheList = contacts.some(
       contact => contact.name.toLowerCase() === name.toLowerCase()
     );
 

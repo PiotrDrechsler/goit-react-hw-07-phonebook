@@ -1,34 +1,27 @@
 import { useSelector, useDispatch } from 'react-redux';
 
-import { getFilterValue, getContacts } from 'redux/selectors';
+import {
+  selectStatusFilter,
+  selectContacts,
+  selectIsLoading,
+} from 'redux/selectors';
+
 import { deleteContact } from 'redux/slicers';
 
 const ContactList = () => {
-  const contacts = useSelector(getContacts);
-  const filter = useSelector(getFilterValue);
+  const contacts = useSelector(selectContacts);
+  const filter = useSelector(selectStatusFilter);
+  const isLoading = useSelector(selectIsLoading);
   const dispatch = useDispatch();
 
-  const filteredContacts = contacts.items
-    .filter(contact => {
-      const nameMatch = contact.name
-        ? contact.name.toLowerCase().includes(filter.toLowerCase())
-        : false;
-      const phoneMatch = contact.phone
-        ? contact.phone.toLowerCase().includes(filter.toLowerCase())
-        : false;
-      return nameMatch || phoneMatch;
-    })
-    .sort((a, b) => {
-      if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
-      if (a.name.toLowerCase() > b.name.toLowerCase()) return 1;
-      return 0;
-    });
-
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter)
+  );
   const handleDelete = idToDelete => {
     dispatch(deleteContact(idToDelete));
   };
 
-  return contacts.isLoading ? (
+  return isLoading ? (
     <p>List is Loading! Please wait.</p>
   ) : filteredContacts.length > 0 ? (
     <>
