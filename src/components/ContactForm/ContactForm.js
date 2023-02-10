@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { getContacts } from 'redux/selectors';
-import { addContact } from 'redux/reducer';
+import { addContact } from 'redux/slicers';
 
 const ContactForm = () => {
   const contacts = useSelector(getContacts);
@@ -8,30 +8,27 @@ const ContactForm = () => {
 
   const handleAddContact = e => {
     e.preventDefault();
-    let nameOntheList = false;
+
     const form = e.target;
     const name = e.target.name.value;
-    const number = e.target.number.value;
-    const toLowerCase = name.toLowerCase();
+    const phone = e.target.phone.value;
+    const nameOnTheList = contacts.items.some(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
 
     const newContact = {
       name: name,
-      number: number,
+      phone: phone,
     };
 
-    contacts.forEach(contact => {
-      if (contact.name.toLowerCase() === toLowerCase) {
-        alert(`${name} is already in contacts`);
-        nameOntheList = true;
-        form.reset();
-      }
-    });
-
-    if (nameOntheList) return;
-
-    dispatch(addContact(newContact));
-    form.reset();
+    if (!nameOnTheList) {
+      dispatch(addContact(newContact));
+      form.reset();
+    } else {
+      alert(`${name} is in use. Try another name.`);
+    }
   };
+
   return (
     <form onSubmit={handleAddContact}>
       <label htmlFor="name">
@@ -46,12 +43,12 @@ const ContactForm = () => {
           required
         />
       </label>
-      <label htmlFor="number">
+      <label htmlFor="phone">
         Number
         <input
           autoComplete="off"
           type="tel"
-          name="number"
+          name="phone"
           pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
           placeholder="e.g. 123-456-789"
