@@ -1,5 +1,11 @@
 import axios from 'axios';
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import {
+  createSlice,
+  createAsyncThunk,
+  createSelector,
+} from '@reduxjs/toolkit';
+
+import { selectContacts } from './selectors';
 
 axios.defaults.baseURL = 'https://63e53f554474903105fc94dd.mockapi.io/api/v1/';
 
@@ -37,6 +43,14 @@ export const deleteContact = createAsyncThunk(
       console.error(error);
       return thunkAPI.rejectWithValue(error);
     }
+  }
+);
+
+export const selectContactsCount = createSelector(
+  [selectContacts],
+  contacts => {
+    const count = contacts.filter(Boolean).length;
+    return count;
   }
 );
 
